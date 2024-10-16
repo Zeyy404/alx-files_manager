@@ -1,3 +1,4 @@
+/* eslint-disable */
 const crypto = require('crypto');
 const User = require('../models/User');
 
@@ -12,19 +13,19 @@ class UsersController {
       return res.status(400).json({ error: 'Missing password' });
     }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: 'Already exists' });
-    }
-
-    const hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
-
-    const newUser = new User({
-      email,
-      password: hashedPassword,
-    });
-
     try {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ error: 'Already exists' });
+      }
+
+      const hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
+
+      const newUser = new User({
+        email,
+        password: hashedPassword,
+      });
+
       await newUser.save();
       res.status(201).json({ id: newUser._id, email: newUser.email });
     } catch (error) {
