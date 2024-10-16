@@ -1,7 +1,7 @@
 /* eslint-disable */
 const dbClient = require('../utils/db');
 const { ObjectId } = require('mongodb');
-class UserModel {
+class User {
   static async findByEmail(email) {
     const db = dbClient.client.db(dbClient.databaseName);
     const usersCollection = db.collection('users');
@@ -16,4 +16,4 @@ class UserModel {
   }
 }
 
-module.exports = UserModel;
+module.exports = User;
