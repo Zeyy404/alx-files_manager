@@ -1,6 +1,6 @@
 /* eslint-disable */
 const crypto = require('crypto');
-const redisClient = require('../utils/redisClient');
+const redisClient = require('../utils/redis');
 const User = require('../models/User');
 
 class UsersController {
@@ -41,7 +41,7 @@ class UsersController {
 
     const key = `auth_${token}`;
     const userId = await redisClient.get(key);
-    
+
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
