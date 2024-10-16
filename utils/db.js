@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const { MongoClient } = require('mongodb');
 
 class DBClient {
   constructor() {
@@ -6,7 +6,9 @@ class DBClient {
     const port = process.env.DB_PORT || 27017;
     const database = process.env.DB_DATABASE || 'files_manager';
 
-    this.uri = `mongodb://${host}:${port}/${database}`;
+    this.uri = `mongodb://${host}:${port}`;
+    this.databaseName = database;
+    this.client = new MongoClient(this.uri);
     this.isConnected = false;
 
     this.connect();
@@ -14,14 +16,11 @@ class DBClient {
 
   async connect() {
     try {
-      await mongoose.connect(this.uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
+      await this.client.connect();
       this.isConnected = true;
       console.log(`Connected to MongoDB at ${this.uri}`);
     } catch (err) {
-      console.error('MongoDB Connection Error:', err);
+      console.error('MongoDB Client Error:', err);
       this.isConnected = false;
     }
   }
@@ -33,16 +32,18 @@ class DBClient {
   async nbUsers() {
     if (!this.isConnected) return 0;
 
-    const User = mongoose.model('User');
-    const count = await User.countDocuments();
+    const db = this.client.db(this.databaseName);
+    const usersCollection = db.collection('users');
+    const count = await usersCollection.countDocuments();
     return count;
   }
 
   async nbFiles() {
     if (!this.isConnected) return 0;
 
-    const File = mongoose.model('File');
-    const count = await File.countDocuments();
+    const db = this.client.db(this.databaseName);
+    const filesCollection = db.collection('files');
+    const count = await filesCollection.countDocuments();
     return count;
   }
 }
