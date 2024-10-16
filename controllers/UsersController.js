@@ -6,12 +6,28 @@ class UsersController {
   static async postNew(req, res) {
     const { email, password } = req.body;
 
+    if (!email) {
+      return res.status(400).json({ error: 'Missing email' });
+    }
+
+    if (!password) {
+      return res.status(400).json({ error: 'Missing password' });
+    }
+
     try {
-      const newUser = await UserModel.create(email, password);
-      res.status(201).json({ id: newUser.id, email: newUser.email });
+      const existingUser = await User.findByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ error: 'Already exists' });
+      }
+
+      const hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
+
+      const newUser = { email, password: hashedPassword };
+      const result = await User.create(newUser);
+      return res.status(201).json({ id: result.insertedId, email: result.email });
     } catch (error) {
       console.error('Error creating user:', error);
-      res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
   }
 
