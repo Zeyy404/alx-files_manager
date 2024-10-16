@@ -1,6 +1,6 @@
 /* eslint-disable */
 const crypto = require('crypto');
-const User = require('../models/User');
+const UserModel = require('../models/User');
 
 class UsersController {
   static async postNew(req, res) {
@@ -15,7 +15,7 @@ class UsersController {
     }
 
     try {
-      const existingUser = await User.findByEmail(email);
+      const existingUser = await UserModel.findByEmail(email);
       if (existingUser) {
         return res.status(400).json({ error: 'Already exists' });
       }
@@ -23,7 +23,7 @@ class UsersController {
       const hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
 
       const newUser = { email, password: hashedPassword };
-      const result = await User.create(newUser);
+      const result = await UserModel.create(newUser);
       return res.status(201).json({ id: result.insertedId, email: result.email });
     } catch (error) {
       console.error('Error creating user:', error);
@@ -38,12 +38,14 @@ class UsersController {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const userId = await redisClient.get(`auth_${token}`);
+    const key = `auth_${token}`;
+    const userId = await redisClient.get(key);
+    
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const user = await User.findById(userId).select('email _id');
+    const user = await UserModel.findById(userId);
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
