@@ -30,7 +30,7 @@ class UsersController {
       res.status(201).json({ id: newUser._id, email: newUser.email });
     } catch (error) {
       console.error('Error creating user:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
   }
 }
