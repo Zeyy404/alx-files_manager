@@ -1,6 +1,6 @@
 /* eslint-disable */
 const dbClient = require('../utils/db');
-const { ObjectId } = require('mongodb');
+
 class User {
   static async findByEmail(email) {
     const db = dbClient.client.db(dbClient.databaseName);
